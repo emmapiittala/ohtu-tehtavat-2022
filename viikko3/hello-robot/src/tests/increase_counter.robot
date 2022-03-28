@@ -1,6 +1,12 @@
 *** Settings ***
 Resource  resource.robot
-
+Library  ../CounterLibrary.py
+Library  SomeUsefulLibrary
+*** Keywords ***
+Increase Counter Three Times
+    Increase Counter
+    Increase Counter
+    Increase Counter
 *** Test Cases ***
 Increase Counter Once
     Counter Value Should Be  0
