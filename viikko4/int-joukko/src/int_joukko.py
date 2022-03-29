@@ -1,51 +1,28 @@
-KAPASITEETTI = 5
-OLETUSKASVATUS = 5
-
+import itertools
 
 class IntJoukko:
-    def __init__(self, kapasiteetti=None, kasvatuskoko=None):
-        if kapasiteetti is None:
-            self.kapasiteetti = KAPASITEETTI
-        elif not isinstance(kapasiteetti, int) or kapasiteetti < 0:
-            raise Exception("Väärä kapasiteetti")  # heitin vaan jotain :D
-        else:
-            self.kapasiteetti = kapasiteetti
-
-        if kasvatuskoko is None:
-            self.kasvatuskoko = OLETUSKASVATUS
-        elif not isinstance(kapasiteetti, int) or kapasiteetti < 0:
-            raise Exception("kapasiteetti2")  # heitin vaan jotain :D
-        else:
-            self.kasvatuskoko = kasvatuskoko
-
+    def __init__(self, kapasiteetti=0, kasvatuskoko=0):
+        self.kapasiteetti = 5 if kapasiteetti <= 0 else kapasiteetti
+        self.kasvatuskoko = 5 if kasvatuskoko <= 0 else kasvatuskoko
         self.ljono = [0] * self.kapasiteetti
-
         self.alkioiden_lkm = 0
 
-    def kuuluu(self, n):
-        on = 0
+    def kuuluu(self, loytyyko):
+        apu = 0
 
-        for i in range(0, self.alkioiden_lkm):
-            if n == self.ljono[i]:
-                on = on + 1
+        for i in range(self.alkioiden_lkm):
+            if loytyyko == self.ljono[i]:
+                apu = apu + 1
 
-        if on > 0:
-            return True
-        else:
-            return False
+        return apu > 0
 
-    def lisaa(self, n):
-        ei_ole = 0
-
+    def lisaa(self, lisays):
         if self.alkioiden_lkm == 0:
-            self.ljono[0] = n
+            self.ljono[0] = lisays
             self.alkioiden_lkm = self.alkioiden_lkm + 1
             return True
-        else:
-            pass
-
-        if not self.kuuluu(n):
-            self.ljono[self.alkioiden_lkm] = n
+        if not self.kuuluu(lisays):
+            self.ljono[self.alkioiden_lkm] = lisays
             self.alkioiden_lkm = self.alkioiden_lkm + 1
 
             if self.alkioiden_lkm % len(self.ljono) == 0:
@@ -57,31 +34,25 @@ class IntJoukko:
             return True
 
         return False
+    
+    
+    def poista(self, poistaa):
+        for indeksi in range(self.alkioiden_lkm):
+            if poistaa == self.ljono[indeksi]:
+                self.ljono[indeksi] = 0
 
-    def poista(self, n):
-        kohta = -1
-        apu = 0
-
-        for i in range(0, self.alkioiden_lkm):
-            if n == self.ljono[i]:
-                kohta = i  # siis luku löytyy tuosta kohdasta :D
-                self.ljono[kohta] = 0
-                break
-
-        if kohta != -1:
-            for j in range(kohta, self.alkioiden_lkm - 1):
-                apu = self.ljono[j]
-                self.ljono[j] = self.ljono[j + 1]
-                self.ljono[j + 1] = apu
-
-            self.alkioiden_lkm = self.alkioiden_lkm - 1
-            return True
+                for joukko in range(indeksi, self.alkioiden_lkm - 1):
+                    apu = self.ljono[joukko]
+                    self.ljono[joukko] = self.ljono[joukko + 1]
+                    self.ljono[joukko + 1] = apu
+                self.alkioiden_lkm = self.alkioiden_lkm - 1
+                return True
 
         return False
 
-    def kopioi_taulukko(self, a, b):
-        for i in range(0, len(a)):
-            b[i] = a[i]
+    def kopioi_taulukko(self, joukko1, joukko2):
+        for i in range(len(joukko1)):
+            joukko2[i] = joukko1[i]
 
     def mahtavuus(self):
         return self.alkioiden_lkm
@@ -89,51 +60,50 @@ class IntJoukko:
     def to_int_list(self):
         taulu = [0] * self.alkioiden_lkm
 
-        for i in range(0, len(taulu)):
+        for i in range(len(taulu)):
             taulu[i] = self.ljono[i]
 
         return taulu
 
     @staticmethod
-    def yhdiste(a, b):
-        x = IntJoukko()
-        a_taulu = a.to_int_list()
-        b_taulu = b.to_int_list()
+    def yhdiste(joukko1, joukko2):
+        joukkio = IntJoukko()
+        ykkonenT = joukko1.to_int_list()
+        kakkonenT = joukko2.to_int_list()
 
-        for i in range(0, len(a_taulu)):
-            x.lisaa(a_taulu[i])
+        for i in range(len(ykkonenT)):
+            joukkio.lisaa(ykkonenT[i])
 
-        for i in range(0, len(b_taulu)):
-            x.lisaa(b_taulu[i])
+        for i in range(len(kakkonenT)):
+            joukkio.lisaa(kakkonenT[i])
 
-        return x
-
-    @staticmethod
-    def leikkaus(a, b):
-        y = IntJoukko()
-        a_taulu = a.to_int_list()
-        b_taulu = b.to_int_list()
-
-        for i in range(0, len(a_taulu)):
-            for j in range(0, len(b_taulu)):
-                if a_taulu[i] == b_taulu[j]:
-                    y.lisaa(b_taulu[j])
-
-        return y
+        return joukkio
 
     @staticmethod
-    def erotus(a, b):
-        z = IntJoukko()
-        a_taulu = a.to_int_list()
-        b_taulu = b.to_int_list()
+    def leikkaus(joukko1, joukko2):
+        joukkio = IntJoukko()
+        ykkonenT= joukko1.to_int_list()
+        kakkonenT = joukko2.to_int_list()
 
-        for i in range(0, len(a_taulu)):
-            z.lisaa(a_taulu[i])
+        for i, joukko in itertools.product(range(len(ykkonenT)), range(len(kakkonenT))):
+            if ykkonenT[i] == kakkonenT[joukko]:
+                joukkio.lisaa(kakkonenT[joukko])
 
-        for i in range(0, len(b_taulu)):
-            z.poista(b_taulu[i])
+        return joukkio
 
-        return z
+    @staticmethod
+    def erotus(joukko1, joukko2):
+        joukkio = IntJoukko()
+        ykkonenT = joukko1.to_int_list()
+        kakkonenT = joukko2.to_int_list()
+
+        for i in range(len(ykkonenT)):
+            joukkio.lisaa(ykkonenT[i])
+
+        for i in range(len(kakkonenT)):
+            joukkio.poista(kakkonenT[i])
+
+        return joukkio
 
     def __str__(self):
         if self.alkioiden_lkm == 0:
@@ -142,9 +112,9 @@ class IntJoukko:
             return "{" + str(self.ljono[0]) + "}"
         else:
             tuotos = "{"
-            for i in range(0, self.alkioiden_lkm - 1):
+            for i in range(self.alkioiden_lkm - 1):
                 tuotos = tuotos + str(self.ljono[i])
-                tuotos = tuotos + ", "
+                tuotos = f'{tuotos}, '
             tuotos = tuotos + str(self.ljono[self.alkioiden_lkm - 1])
             tuotos = tuotos + "}"
             return tuotos
